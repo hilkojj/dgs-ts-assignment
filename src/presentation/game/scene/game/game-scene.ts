@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 import { PixiAnimatedSprite } from "../../pixi/pixi-animated-sprite";
 import { Snake } from "../../../../logic/snake/snake";
 import { Vector2 } from "../../../../logic/math/vector2";
+import { Color } from "../../../../logic/rendering/color";
 
 const TILE_SIZE = 32
 
@@ -24,10 +25,11 @@ export class GameScene extends PixiScene {
     this.boardTopLeftPosition = context.appSize.getCopy().scale(.5).subtract(boardSize.scale(TILE_SIZE * .5));
 
     this.createKeyboardListener();
+    this.drawBackground(context, boardSize);
 
     this.snake = new Snake(boardSize);
 
-    this.snake.on("moved", () => this.draw(context));
+    this.snake.on("moved", () => this.drawSnake(context));
     this.snake.on("foodplaced", position => this.drawApple(context, position));
     this.snake.on("gameover", () => console.log("Game over!"));
 
@@ -49,11 +51,25 @@ export class GameScene extends PixiScene {
     });
   }
 
-  draw(context: Context) {
+  drawBackground(context: Context, boardSize: Vector2) {
+    const graphics = new PIXI.Graphics();
 
-    console.log("draw");
+    for (let x = 0; x < boardSize.x; x++) {
+      for (let y = 0; y < boardSize.y; y++) {
 
-    this.drawSnake(context);
+        const color = (x + y) % 2 == 0 ? new Color(0, 220, 100) : new Color(100, 240, 0);
+
+        graphics.beginFill(color.hexCode);
+        graphics.drawRect(this.boardTopLeftPosition.x + x * TILE_SIZE,
+                          this.boardTopLeftPosition.y + y * TILE_SIZE,
+                          TILE_SIZE, TILE_SIZE);
+      }
+    }
+    this.container.addChild(graphics);
+  }
+
+  // draw(context: Context) {
+
 
     // const apeAnimation = context.pixiAssetLoader.getResource("someAnimation");
     
@@ -64,7 +80,7 @@ export class GameScene extends PixiScene {
     // animatedRunner.play();
 
     // this.container.addChild(animatedRunner.anim);
-  }
+  // }
 
   drawSnake(context: Context) {
 
@@ -73,21 +89,32 @@ export class GameScene extends PixiScene {
     this.snakeSprites = []
 
     // draw new snake:
-    const someImageTexture = context.pixiAssetLoader.getResource("snakePart");
+    const snakePartTexture = context.pixiAssetLoader.getResource("snakePart");
+    const snakeHeadTexture = context.pixiAssetLoader.getResource("snakeHead");
 
     for (let i = 0; i < this.snake.length; i++) {
 
       const position = this.snake.getTailPosition(i);
 
-      const sprite = new PIXI.Sprite(someImageTexture.texture);
+      const isHead = i == this.snake.length - 1;
+      const texture = isHead ? snakeHeadTexture : snakePartTexture;
 
+      const sprite = new PIXI.Sprite(texture.texture);
       const spritePosition = this.boardToCanvasPosition(position);
-
-      sprite.position.set(spritePosition.x, spritePosition.y);
-      sprite.anchor.set(0);
+      sprite.position.set(spritePosition.x + TILE_SIZE * .5, spritePosition.y + TILE_SIZE * .5);
+      sprite.anchor.set(.5);
       sprite.width = sprite.height = TILE_SIZE;
+
+      if (isHead) {
+        if (this.snake.currentDirection.equals(Vector2.LEFT))
+          sprite.rotation = Math.PI * .5;
+        if (this.snake.currentDirection.equals(Vector2.RIGHT))
+          sprite.rotation = Math.PI * -.5;
+        if (this.snake.currentDirection.equals(Vector2.DOWN))
+          sprite.rotation = Math.PI;
+      }
+
       this.container.addChild(sprite);
-  
       this.snakeSprites.push(sprite);
     }
   }
@@ -99,8 +126,8 @@ export class GameScene extends PixiScene {
     if (this.appleSprite)
       this.container.removeChild(this.appleSprite); // todo: animation
 
-    const someImageTexture = context.pixiAssetLoader.getResource("someImage");
-    this.appleSprite = new PIXI.Sprite(someImageTexture.texture);
+    const appleTexture = context.pixiAssetLoader.getResource("apple");
+    this.appleSprite = new PIXI.Sprite(appleTexture.texture);
 
     const spritePosition = this.boardToCanvasPosition(applePosition);
 

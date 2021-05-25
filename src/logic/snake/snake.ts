@@ -19,7 +19,7 @@ export class Snake extends EventEmitter {
   constructor(boardSize: Vector2) {
     super();
 
-    if (boardSize.x < 2 || boardSize.y < 2)
+    if (boardSize.x < 4 || boardSize.y < 4)
       throw Error("boardSize is too small.");
 
     this.boardSize = boardSize;
@@ -37,6 +37,10 @@ export class Snake extends EventEmitter {
 
   public get length(): number {
     return this.tailPositions.length;
+  }
+
+  public get currentDirection(): Vector2 {
+    return this.direction.getCopy();
   }
 
   public getTailPosition(index: number): Vector2 {
