@@ -23,6 +23,7 @@ export class App {
       Object.entries({
         someImage: "./assets/images/some-image.png",
         someAnimation: "./assets/animations/some-animation.json",
+        snakePart: "./assets/images/snake-part.png"
       })
     );
     const pixiAssetLoader = new AssetRepository(new PixiAssetProvider(pixiAssetPaths));

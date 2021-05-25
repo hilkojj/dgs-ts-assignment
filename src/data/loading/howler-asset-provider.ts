@@ -32,7 +32,7 @@ export class HowlerAssetProvider implements AssetProvider<Howl> {
   public getResource(resourceName: string) {
     const resource = this.resources.get(resourceName);
     if (!resource)
-      throw new Error("PixiAssetProvider.getResource(): " + resourceName + " is not loaded in loader");
+      throw new Error("HowlerAssetProvider.getResource(): " + resourceName + " is not loaded in loader");
     
     return resource;
   }
