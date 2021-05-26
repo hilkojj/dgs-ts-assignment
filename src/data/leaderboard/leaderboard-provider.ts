@@ -5,8 +5,8 @@ export interface LeaderboardProvider {
   listLeaderboard(
     startAt: any | null,
     limit: number,
-    orderBy: any,
-    order: string
+    orderBy: "score" | "time" | "date",
+    order: "asc" | "desc"
   ): Promise<Observable<Array<LeaderboardEntry>>>;
 
   createEntry(entry: LeaderboardEntry): Promise<void>;

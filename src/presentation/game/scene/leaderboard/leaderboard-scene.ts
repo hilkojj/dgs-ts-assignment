@@ -9,7 +9,7 @@ export class LeaderboardScene extends PixiScene {
     this.draw(context);
   }
 
-  draw(context: Context) {
+  async draw(context: Context) {
     const logoTexture = context.pixiAssetLoader.getResource("logo");
     const sprite = new PIXI.Sprite(logoTexture.texture);
     sprite.position.set(context.appSize.x * .5, context.appSize.x * .5 - 100);
@@ -18,5 +18,10 @@ export class LeaderboardScene extends PixiScene {
     sprite.width = context.appSize.x * .7;
     sprite.height = sprite.width * whRatio;
     this.container.addChild(sprite);
+
+
+
+    const ob = await context.leaderboardRepo.listLeaderboard(null, 10, "score", "desc");
+    ob.subscribe(console.log);
   }
 }

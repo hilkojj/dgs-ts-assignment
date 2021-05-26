@@ -9,11 +9,11 @@ export class LeaderboardRepository {
     this.provider = provider;
   }
 
-  public async listLeaderboard(
+  listLeaderboard(
     startAt: any | null,
     limit: number,
-    orderBy: any,
-    order: string
+    orderBy: "score" | "time" | "date",
+    order: "asc" | "desc"
   ): Promise<Observable<Array<LeaderboardEntry>>> {
     return this.provider.listLeaderboard(startAt, limit, orderBy, order);
   }

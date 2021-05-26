@@ -13,21 +13,30 @@ export class FirestoreLeaderboardProvider implements LeaderboardProvider {
     this.collectionReference = this.firestore.collection("leaderboard");
   }
 
-  public async listLeaderboard(
+  async listLeaderboard(
     startAt: any | null,
     limit: number,
-    orderBy: any,
+    orderBy: "score" | "time" | "date",
     order: "asc" | "desc"
   ): Promise<Observable<Array<LeaderboardEntry>>> {
-    throw new Error("method not implemented");
+
+    return new Observable<Array<LeaderboardEntry>>(observer => {
+
+      let query = this.collectionReference
+        .orderBy(orderBy, order)
+        .limit(limit);
+
+      if (startAt)
+        query = query.startAt(startAt);
+
+      query.onSnapshot(snap => {
+
+          observer.next(snap.docs.map(docSnap => <LeaderboardEntry>(docSnap.data() as unknown)));
+      });
+    });
   }
 
-  createEntry(entry: LeaderboardEntry): Promise<void> {
-
-    console.log(entry);
-
-    this.collectionReference.add(entry);
-
-
+  async createEntry(entry: LeaderboardEntry): Promise<void> {
+    await this.collectionReference.add(entry);
   }
 }
