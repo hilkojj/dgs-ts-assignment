@@ -21,10 +21,10 @@ export class App {
 
     const pixiAssetPaths = new Map<string, string>(
       Object.entries({
-        someAnimation: "./assets/animations/some-animation.json",
         snakePart: "./assets/images/snake-part.png",
         snakeHead: "./assets/images/snake-head.png",
         apple: "./assets/images/apple.png",
+        appleAnimation: "./assets/animations/apple-animation.json"
       })
     );
     const pixiAssetLoader = new AssetRepository(new PixiAssetProvider(pixiAssetPaths));

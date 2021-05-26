@@ -13,18 +13,19 @@ export class GameScene extends PixiScene {
 
   snake: Snake
   snakeSprites: PIXI.Sprite[] = []
-  appleSprite: PIXI.Sprite? = null
+  appleSprite: PixiAnimatedSprite? = null
 
   readonly boardTopLeftPosition: Vector2
 
   constructor(context: Context, manager: PixiSceneManager) {
     super(manager);
 
-    const boardSize = new Vector2(10, 10);
+    const boardSize = new Vector2(14, 14);
 
     this.boardTopLeftPosition = context.appSize.getCopy().scale(.5).subtract(boardSize.scale(TILE_SIZE * .5));
 
     this.createKeyboardListener();
+    this.container.sortableChildren = true;
     this.drawBackground(context, boardSize);
 
     this.snake = new Snake(boardSize);
@@ -54,6 +55,13 @@ export class GameScene extends PixiScene {
   drawBackground(context: Context, boardSize: Vector2) {
     const graphics = new PIXI.Graphics();
 
+    const borderWidth = 8;
+    graphics.beginFill(new Color(50, 0, 100, 255).hexCode);
+    graphics.drawRoundedRect(this.boardTopLeftPosition.x - borderWidth,
+                             this.boardTopLeftPosition.y - borderWidth,
+                             boardSize.x * TILE_SIZE + borderWidth * 2,
+                             boardSize.y * TILE_SIZE + borderWidth * 2, 4);
+
     for (let x = 0; x < boardSize.x; x++) {
       for (let y = 0; y < boardSize.y; y++) {
 
@@ -67,20 +75,6 @@ export class GameScene extends PixiScene {
     }
     this.container.addChild(graphics);
   }
-
-  // draw(context: Context) {
-
-
-    // const apeAnimation = context.pixiAssetLoader.getResource("someAnimation");
-    
-    // const animatedRunner = new PixiAnimatedSprite("Run", apeAnimation);
-    // animatedRunner.position.set(context.appSize.x * 0.5, context.appSize.y * 0.6);
-    // animatedRunner.anchor.set(0.5, 0.5);
-    // animatedRunner.anim.animationSpeed = 0.3;
-    // animatedRunner.play();
-
-    // this.container.addChild(animatedRunner.anim);
-  // }
 
   drawSnake(context: Context) {
 
@@ -121,20 +115,27 @@ export class GameScene extends PixiScene {
 
   drawApple(context: Context, applePosition: Vector2) {
 
-    console.log("Apple position", applePosition);
+    if (this.appleSprite)       // play eating animation of old apple sprite. That sprite will disappear after playing.
+      this.appleSprite.play();
 
-    if (this.appleSprite)
-      this.container.removeChild(this.appleSprite); // todo: animation
+    const appleAnimation = context.pixiAssetLoader.getResource("appleAnimation");
 
-    const appleTexture = context.pixiAssetLoader.getResource("apple");
-    this.appleSprite = new PIXI.Sprite(appleTexture.texture);
+    const animatedRunner = new PixiAnimatedSprite("apple-anim", appleAnimation);
 
     const spritePosition = this.boardToCanvasPosition(applePosition);
 
-    this.appleSprite.position.set(spritePosition.x, spritePosition.y);
-    this.appleSprite.anchor.set(0);
-    this.appleSprite.width = this.appleSprite.height = TILE_SIZE;
-    this.container.addChild(this.appleSprite);
+    animatedRunner.position.set(spritePosition.x, spritePosition.y);
+    animatedRunner.anchor.set(0);
+    animatedRunner.anim.width = animatedRunner.anim.height = TILE_SIZE;
+    animatedRunner.anim.loop = false;
+    animatedRunner.anim.animationSpeed = 0.3;
+    animatedRunner.anim.zIndex = 100;
+    animatedRunner.anim.onComplete = () => {
+      this.container.removeChild(animatedRunner.anim);
+    };
+    this.container.addChild(animatedRunner.anim);
+
+    this.appleSprite = animatedRunner;
   }
 
   boardToCanvasPosition(boardPosition: Vector2): Vector2 {
