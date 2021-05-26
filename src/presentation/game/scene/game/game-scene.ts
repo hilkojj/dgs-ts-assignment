@@ -200,7 +200,7 @@ export class GameScene extends PixiScene {
     this.context.lastSnakeGame = this.snake;
     setTimeout(() => {
       this.manager.goTo(3);
-    }, 1000);
+    }, 1500);
   }
 
   /**

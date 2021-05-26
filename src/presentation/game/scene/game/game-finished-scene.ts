@@ -32,6 +32,15 @@ export class GameFinishedScene extends PixiScene {
 
   draw() {
 
+    const logoTexture = this.context.pixiAssetLoader.getResource("logo");
+    const sprite = new PIXI.Sprite(logoTexture.texture);
+    sprite.position.set(this.context.appSize.x * .5, this.context.appSize.x * .5 - 100);
+    sprite.anchor.set(.5, .5);
+    const whRatio = sprite.height / sprite.width;
+    sprite.width = this.context.appSize.x * .7;
+    sprite.height = sprite.width * whRatio;
+    this.container.addChild(sprite);
+
     {
       const text = new PIXI.Text(
         this.context.lastSnakeGame?._won ? "You won the game!" : "Game over!",

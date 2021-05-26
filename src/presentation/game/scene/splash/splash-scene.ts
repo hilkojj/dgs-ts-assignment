@@ -40,10 +40,6 @@ export class SplashScene extends PixiScene {
   }
 
   draw(context: Context) {
-    const text = new PIXI.Text("Splash Scene", { fontSize: 50, fill: Color.white().hexCode });
-    text.anchor.set(0.5, 0.5);
-    text.position.set(context.appSize.x * 0.5, context.appSize.y * 0.5);
-    this.container.addChild(text);
   }
 
   private progressHandler(context: Context) {

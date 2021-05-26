@@ -17,7 +17,7 @@ export class PixiGame {
       width: context.appSize.x,
       height: context.appSize.y,
       resolution: window.devicePixelRatio || 1,
-      backgroundColor: Color.blue().hexCode,
+      backgroundColor: new Color(125, 57, 81).hexCode,
       autoDensity: true,
     });
 
