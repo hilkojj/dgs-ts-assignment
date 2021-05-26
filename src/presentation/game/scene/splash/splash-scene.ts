@@ -47,6 +47,6 @@ export class SplashScene extends PixiScene {
   }
 
   handleAuthStateChange(user: User | null) {
-    !user ? this.manager.goTo(1) : this.manager.goTo(2);
+    !user ? this.manager.goTo(1) : this.manager.goTo(4);
   }
 }

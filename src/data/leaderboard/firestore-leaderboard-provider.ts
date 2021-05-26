@@ -31,7 +31,22 @@ export class FirestoreLeaderboardProvider implements LeaderboardProvider {
 
       query.onSnapshot(snap => {
 
-          observer.next(snap.docs.map(docSnap => <LeaderboardEntry>(docSnap.data() as unknown)));
+        observer.next(
+          snap.docs.map(docSnap => { return {
+            name:
+              ("" + docSnap.data()["name"])
+              .substr(0, 12)                                // max length of 12
+              .replace(/(\r\n|\n|\r)/gm, "")                // remove newlines
+              .replace(/<[^>]*>?/gm, ''),                   // remove HTML tags
+                                                            // note, this should probably happen in a presentation class, not in a data class like a LeaderboardProvider.
+
+            time: Math.max(0, docSnap.data()["time"]),
+
+            date: new Date(docSnap.data()["date"].timestamp),
+
+            score: Math.max(0, docSnap.data()["score"])
+          }})
+        );
       });
     });
   }
