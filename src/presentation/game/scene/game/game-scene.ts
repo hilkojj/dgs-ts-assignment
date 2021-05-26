@@ -25,7 +25,7 @@ export class GameScene extends PixiScene {
 
     this.boardTopLeftPosition = context.appSize.getCopy().scale(.5).subtract(boardSize.scale(TILE_SIZE * .5));
 
-    this.createKeyboardListener();
+    this.createKeyboardListener(context);
     this.container.sortableChildren = true;
     this.drawBackground(context, boardSize);
     this.drawHUD(context);
@@ -34,17 +34,24 @@ export class GameScene extends PixiScene {
 
     this.snake.on("moved", () => this.drawSnake(context));
     this.snake.on("foodplaced", position => this.drawApple(context, position));
-    this.snake.on("gameover", () => console.log("Game over!"));
+    this.snake.on("gameover", () => {
+      console.log("Game over!")
+      context.audioManager.playSound("gameOver");
+    });
     this.snake.on("scoreupdated", score => {
       if (this.scoreText)
         this.scoreText.text = score.toString();
+
+      context.audioManager.playSound("eat");
     });
 
     this.snake.start();
   }
 
-  createKeyboardListener() {
+  createKeyboardListener(context: Context) {
     document.addEventListener("keydown", event => {
+
+      let playSound = true;
 
       if (event.code == "ArrowUp")
         this.snake.goUp();
@@ -54,6 +61,10 @@ export class GameScene extends PixiScene {
         this.snake.goLeft();
       else if (event.code == "ArrowRight")
         this.snake.goRight();
+      else playSound = false;
+
+      if (playSound)
+        context.audioManager.playSound("changeDirection");
 
     });
   }
