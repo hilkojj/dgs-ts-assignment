@@ -6,6 +6,7 @@ import { PixiAnimatedSprite } from "../../pixi/pixi-animated-sprite";
 import { Snake } from "../../../../logic/snake/snake";
 import { Vector2 } from "../../../../logic/math/vector2";
 import { Color } from "../../../../logic/rendering/color";
+import { LeaderboardEntry } from "../../../../data/leaderboard/leaderboard";
 
 const TILE_SIZE = 32
 
@@ -15,6 +16,8 @@ export class GameScene extends PixiScene {
   snakeSprites: PIXI.Sprite[] = []
   appleSprite?: PixiAnimatedSprite
   scoreText?: PIXI.Text
+
+  keyboardListener: any
 
   readonly context: Context
   readonly boardTopLeftPosition: Vector2
@@ -38,9 +41,9 @@ export class GameScene extends PixiScene {
     this.snake.on("foodplaced", position => this.drawApple(position));
     this.snake.on("gameover", score => {
       context.audioManager.playSound("gameOver");
-      this.goToGameFinishedScene();
+      this.onGameFinished();
     });
-    this.snake.on("won", score => this.goToGameFinishedScene());
+    this.snake.on("won", score => this.onGameFinished());
     this.snake.on("scoreupdated", score => {
       if (this.scoreText)
         this.scoreText.text = score.toString();
@@ -53,7 +56,8 @@ export class GameScene extends PixiScene {
   }
 
   createKeyboardListener() {
-    document.addEventListener("keydown", event => {
+
+    this.keyboardListener = event => {
 
       let playSound = true;
 
@@ -69,8 +73,9 @@ export class GameScene extends PixiScene {
 
       if (playSound)
         this.context.audioManager.playSound("changeDirection");
+    };
 
-    });
+    document.addEventListener("keydown", this.keyboardListener);
   }
 
   drawBackground(boardSize: Vector2) {
@@ -195,12 +200,26 @@ export class GameScene extends PixiScene {
     this.context.audioManager.stopSound("music");
   }
 
-  goToGameFinishedScene() {
+  onGameFinished() {
     this.stopMusic();
     this.context.lastSnakeGame = this.snake;
     setTimeout(() => {
+
+      const name = prompt("Please enter your name for the leaderboard");
+      if (name) {
+        // upload to leaderboard:
+
+        let entry: LeaderboardEntry = {
+          name,
+          score: this.snake.score,
+          time: this.snake.time,
+          date: new Date()
+        };
+        this.context.leaderboardRepo.createEntry(entry);
+      }
+
       this.manager.goTo(3);
-    }, 1500);
+    }, 1000);
   }
 
   /**
@@ -209,5 +228,7 @@ export class GameScene extends PixiScene {
   protected async onDestroy(): Promise<void> {
     this.snake.end();
     this.stopMusic();
+
+    document.removeEventListener("keydown", this.keyboardListener);
   }
 }

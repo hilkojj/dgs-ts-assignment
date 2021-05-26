@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
-import { Leaderboard } from "./leaderboard";
+import { LeaderboardEntry } from "./leaderboard";
 
 export interface LeaderboardProvider {
   listLeaderboard(
@@ -7,6 +7,7 @@ export interface LeaderboardProvider {
     limit: number,
     orderBy: any,
     order: string
-  ): Promise<Observable<Array<Leaderboard>>>;
-  createLeaderboard(leaderboard: Leaderboard): Promise<void>;
+  ): Promise<Observable<Array<LeaderboardEntry>>>;
+
+  createEntry(entry: LeaderboardEntry): Promise<void>;
 }

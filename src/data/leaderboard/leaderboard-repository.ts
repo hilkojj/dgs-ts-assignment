@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
-import { Leaderboard } from "./leaderboard";
+import { LeaderboardEntry } from "./leaderboard";
 import { LeaderboardProvider } from "./leaderboard-provider";
 
 export class LeaderboardRepository {
@@ -14,11 +14,11 @@ export class LeaderboardRepository {
     limit: number,
     orderBy: any,
     order: string
-  ): Promise<Observable<Array<Leaderboard>>> {
+  ): Promise<Observable<Array<LeaderboardEntry>>> {
     return this.provider.listLeaderboard(startAt, limit, orderBy, order);
   }
 
-  createLeaderboard(leaderboard: Leaderboard): Promise<void>{
-    return this.provider.createLeaderboard(leaderboard);
+  createEntry(entry: LeaderboardEntry): Promise<void>{
+    return this.provider.createEntry(entry);
   };
 }

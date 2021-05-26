@@ -2,7 +2,7 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import { LeaderboardProvider } from "./leaderboard-provider";
 import { Observable } from "rxjs";
-import { Leaderboard } from "./leaderboard";
+import { LeaderboardEntry } from "./leaderboard";
 
 export class FirestoreLeaderboardProvider implements LeaderboardProvider {
   private firestore: firebase.firestore.Firestore;
@@ -18,11 +18,16 @@ export class FirestoreLeaderboardProvider implements LeaderboardProvider {
     limit: number,
     orderBy: any,
     order: "asc" | "desc"
-  ): Promise<Observable<Array<Leaderboard>>> {
+  ): Promise<Observable<Array<LeaderboardEntry>>> {
     throw new Error("method not implemented");
   }
 
-  createLeaderboard(leaderboard: Leaderboard): Promise<void> {
-    throw new Error("Method not implemented.");
+  createEntry(entry: LeaderboardEntry): Promise<void> {
+
+    console.log(entry);
+
+    this.collectionReference.add(entry);
+
+
   }
 }

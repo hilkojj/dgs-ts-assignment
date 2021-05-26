@@ -3,20 +3,22 @@ import { EventEmitter } from 'events';
 
 export class Snake extends EventEmitter {
 
-  boardSize: Vector2;
+  private boardSize: Vector2;
 
-  tailPositions: Vector2[];
+  private tailPositions: Vector2[];
 
-  foodPosition: Vector2 = new Vector2();
+  private foodPosition: Vector2 = new Vector2();
 
-  direction: Vector2 = Vector2.RIGHT;
-  lastMoveDirection: Vector2 = Vector2.RIGHT;
-  queuedDirections: Vector2[] = [];
+  private direction: Vector2 = Vector2.RIGHT;
+  private lastMoveDirection: Vector2 = Vector2.RIGHT;
+  private queuedDirections: Vector2[] = [];
 
-  gameFinsihed: boolean = false;
-  _won: boolean = false;
+  private gameFinsihed: boolean = false;
+  private _won: boolean = false;
+  private timeStarted: number = 0;
+  private timeEnded: number = 0;
 
-  updateInterval: any;
+  private updateInterval: any;
 
   constructor(boardSize: Vector2) {
     super();
@@ -49,6 +51,12 @@ export class Snake extends EventEmitter {
     return this._won;
   }
 
+  public get time(): number {
+    if (this.gameFinsihed)
+      return this.timeEnded - this.timeStarted;
+    else return Date.now() - this.timeStarted;
+  }
+
   public get currentDirection(): Vector2 {
     return this.direction.getCopy();
   }
@@ -77,15 +85,17 @@ export class Snake extends EventEmitter {
   }
 
   public start() {
+    this.timeStarted = Date.now();
     this.placeFood();
     this.updateInterval = setInterval(() => this.update(), 200);
   }
 
   public end() {
+    this.timeEnded = Date.now();
     clearTimeout(this.updateInterval);
   }
 
-  update() {
+  private update() {
 
     if (this.gameFinsihed)
       throw Error("Snake game is already finished. Do not call update()");
@@ -125,7 +135,7 @@ export class Snake extends EventEmitter {
       this.emit("scoreupdated", this.score);
   }
 
-  placeFood(): boolean {
+  private placeFood(): boolean {
 
     const openTiles = this.getOpenTiles();
 
@@ -139,7 +149,7 @@ export class Snake extends EventEmitter {
     return true;
   }
 
-  setDirection(dir: Vector2) {
+  private setDirection(dir: Vector2) {
 
     if (dir.scale(-1).equalsWithMargin(this.lastMoveDirection, .1))
       return;
@@ -147,7 +157,7 @@ export class Snake extends EventEmitter {
     this.direction = dir;
   }
 
-  constrainInBoard(position: Vector2): Vector2 {
+  private constrainInBoard(position: Vector2): Vector2 {
     let newPosition = position.getCopy();
     newPosition.x = newPosition.x % this.boardSize.x;
     newPosition.y = newPosition.y % this.boardSize.y;
@@ -161,11 +171,11 @@ export class Snake extends EventEmitter {
     return newPosition.round();
   }
 
-  isTail(position: Vector2): boolean {
+  private isTail(position: Vector2): boolean {
     return this.tailPositions.some(tailPos => tailPos.equalsWithMargin(position, .1));
   }
 
-  getOpenTiles(): Vector2[] {
+  private getOpenTiles(): Vector2[] {
     const openTiles: Vector2[] = []
 
     for (let x = 0; x < this.boardSize.x; x++) {

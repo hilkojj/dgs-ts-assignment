@@ -7,6 +7,7 @@ import * as PIXI from "pixi.js";
 export class GameFinishedScene extends PixiScene {
 
   readonly context: Context
+  keyboardListener: any
 
   constructor(context: Context, manager: PixiSceneManager) {
     super(manager);
@@ -17,7 +18,8 @@ export class GameFinishedScene extends PixiScene {
   }
 
   createKeyboardListener() {
-    document.addEventListener("keydown", event => {
+
+    this.keyboardListener = event => {
 
       // Retry:
       if (event.code == "KeyR")
@@ -27,7 +29,8 @@ export class GameFinishedScene extends PixiScene {
       else if (event.code == "KeyL")
         this.manager.goTo(4);
 
-    });
+    };
+    document.addEventListener("keydown", this.keyboardListener);
   }
 
   draw() {
@@ -68,6 +71,13 @@ export class GameFinishedScene extends PixiScene {
       text.position.set(this.context.appSize.x * 0.5, this.context.appSize.y * 0.5 + 100)
       this.container.addChild(text);
     }
+  }
+
+  /**
+   * Gets called when scene will be destroyed.
+   */
+   protected async onDestroy(): Promise<void> {
+    document.removeEventListener("keydown", this.keyboardListener);
   }
 
 }
