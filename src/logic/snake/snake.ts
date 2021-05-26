@@ -11,6 +11,7 @@ export class Snake extends EventEmitter {
 
   direction: Vector2 = Vector2.RIGHT;
   lastMoveDirection: Vector2 = Vector2.RIGHT;
+  queuedDirections: Vector2[] = [];
 
   gameFinsihed: boolean = false;
 
@@ -55,19 +56,19 @@ export class Snake extends EventEmitter {
   }
 
   public goLeft() {
-    this.setDirection(Vector2.LEFT);
+    this.queuedDirections.push(Vector2.LEFT);
   }
 
   public goRight() {
-    this.setDirection(Vector2.RIGHT);
+    this.queuedDirections.push(Vector2.RIGHT);
   }
 
   public goUp() {
-    this.setDirection(Vector2.DOWN);
+    this.queuedDirections.push(Vector2.DOWN);
   }
 
   public goDown() {
-    this.setDirection(Vector2.UP);
+    this.queuedDirections.push(Vector2.UP);
   }
 
   public start() {
@@ -83,6 +84,8 @@ export class Snake extends EventEmitter {
 
     if (this.gameFinsihed)
       throw Error("Snake game is already finished. Do not call update()");
+
+    this.setDirection(this.queuedDirections.shift() || this.direction);
 
     const newHeadPosition = this.constrainInBoard(
       this.headPosition.add(this.direction)
