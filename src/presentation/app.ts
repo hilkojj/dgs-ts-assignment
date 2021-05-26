@@ -33,7 +33,8 @@ export class App {
       Object.entries({
         gameOver: "./assets/sounds/game-over.wav",
         eat: "./assets/sounds/eat.wav",
-        changeDirection: "./assets/sounds/change-direction.wav"
+        changeDirection: "./assets/sounds/change-direction.wav",
+        music: "./assets/sounds/music.wav",
       })
     );
     const howlerAssetLoader = new AssetRepository(new HowlerAssetProvider(howlerAssetPaths));

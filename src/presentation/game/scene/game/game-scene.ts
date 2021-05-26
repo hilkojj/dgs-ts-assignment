@@ -16,27 +16,30 @@ export class GameScene extends PixiScene {
   appleSprite: PixiAnimatedSprite? = null
   scoreText: PIXI.Text? = null
 
+  readonly context: Context
   readonly boardTopLeftPosition: Vector2
 
   constructor(context: Context, manager: PixiSceneManager) {
     super(manager);
+    this.context = context;
 
     const boardSize = new Vector2(14, 14);
 
     this.boardTopLeftPosition = context.appSize.getCopy().scale(.5).subtract(boardSize.scale(TILE_SIZE * .5));
 
-    this.createKeyboardListener(context);
+    this.createKeyboardListener();
     this.container.sortableChildren = true;
-    this.drawBackground(context, boardSize);
-    this.drawHUD(context);
+    this.drawBackground(boardSize);
+    this.drawHUD();
 
     this.snake = new Snake(boardSize);
 
-    this.snake.on("moved", () => this.drawSnake(context));
-    this.snake.on("foodplaced", position => this.drawApple(context, position));
+    this.snake.on("moved", () => this.drawSnake());
+    this.snake.on("foodplaced", position => this.drawApple(position));
     this.snake.on("gameover", () => {
       console.log("Game over!")
       context.audioManager.playSound("gameOver");
+      this.stopMusic();
     });
     this.snake.on("scoreupdated", score => {
       if (this.scoreText)
@@ -46,9 +49,10 @@ export class GameScene extends PixiScene {
     });
 
     this.snake.start();
+    this.startMusic();
   }
 
-  createKeyboardListener(context: Context) {
+  createKeyboardListener() {
     document.addEventListener("keydown", event => {
 
       let playSound = true;
@@ -64,12 +68,12 @@ export class GameScene extends PixiScene {
       else playSound = false;
 
       if (playSound)
-        context.audioManager.playSound("changeDirection");
+        this.context.audioManager.playSound("changeDirection");
 
     });
   }
 
-  drawBackground(context: Context, boardSize: Vector2) {
+  drawBackground(boardSize: Vector2) {
     const graphics = new PIXI.Graphics();
 
     const borderWidth = 8;
@@ -93,15 +97,15 @@ export class GameScene extends PixiScene {
     this.container.addChild(graphics);
   }
 
-  drawSnake(context: Context) {
+  drawSnake() {
 
     // remove old snake:
     this.snakeSprites.forEach(sprite => this.container.removeChild(sprite));
     this.snakeSprites = []
 
     // draw new snake:
-    const snakePartTexture = context.pixiAssetLoader.getResource("snakePart");
-    const snakeHeadTexture = context.pixiAssetLoader.getResource("snakeHead");
+    const snakePartTexture = this.context.pixiAssetLoader.getResource("snakePart");
+    const snakeHeadTexture = this.context.pixiAssetLoader.getResource("snakeHead");
 
     for (let i = 0; i < this.snake.length; i++) {
 
@@ -130,12 +134,12 @@ export class GameScene extends PixiScene {
     }
   }
 
-  drawApple(context: Context, applePosition: Vector2) {
+  drawApple(applePosition: Vector2) {
 
     if (this.appleSprite)       // play eating animation of old apple sprite. That sprite will disappear after playing.
       this.appleSprite.play();
 
-    const appleAnimation = context.pixiAssetLoader.getResource("appleAnimation");
+    const appleAnimation = this.context.pixiAssetLoader.getResource("appleAnimation");
 
     const animatedRunner = new PixiAnimatedSprite("apple-anim", appleAnimation);
 
@@ -155,11 +159,11 @@ export class GameScene extends PixiScene {
     this.appleSprite = animatedRunner;
   }
 
-  drawHUD(context: Context) {
+  drawHUD() {
 
     const scorePosition = this.boardTopLeftPosition.getCopy().addXY(0, -32);
 
-    const appleTexture = context.pixiAssetLoader.getResource("apple");
+    const appleTexture = this.context.pixiAssetLoader.getResource("apple");
     const sprite = new PIXI.Sprite(appleTexture.texture);
     sprite.position.set(scorePosition.x, scorePosition.y);
     sprite.anchor.set(0, .5);
@@ -168,7 +172,7 @@ export class GameScene extends PixiScene {
 
     let style = new PIXI.TextStyle({
       fontFamily: "arial",
-      fontSize: context.appSize.x * (24 / 545),
+      fontSize: 24,
       fill: "#000000"
     });
 
@@ -182,10 +186,20 @@ export class GameScene extends PixiScene {
     return this.boardTopLeftPosition.getCopy().add(boardPosition.getCopy().scale(TILE_SIZE));
   }
 
+  startMusic() {
+    this.context.audioManager.playSound("music");
+    this.context.audioManager.loopSound("music");
+  }
+
+  stopMusic() {
+    this.context.audioManager.stopSound("music");
+  }
+
   /**
    * Gets called when scene will be destroyed.
    */
   protected async onDestroy(): Promise<void> {
     this.snake.end();
+    this.stopMusic();
   }
 }

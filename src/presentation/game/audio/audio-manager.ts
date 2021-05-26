@@ -20,6 +20,11 @@ export class AudioManager {
     this._howlResources.get(query)?.play();
   }
 
+  public loopSound(query: string, loop = true): void {
+    if (!this._howlResources.has(query)) return;
+    this._howlResources.get(query)?.loop(loop);
+  }
+
   public stopSound(query: string): void {
     if (!this._howlResources.has(query)) return;
     this._howlResources.get(query)?.stop();
