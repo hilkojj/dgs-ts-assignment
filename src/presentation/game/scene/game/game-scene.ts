@@ -14,6 +14,7 @@ export class GameScene extends PixiScene {
   snake: Snake
   snakeSprites: PIXI.Sprite[] = []
   appleSprite: PixiAnimatedSprite? = null
+  scoreText: PIXI.Text? = null
 
   readonly boardTopLeftPosition: Vector2
 
@@ -27,12 +28,17 @@ export class GameScene extends PixiScene {
     this.createKeyboardListener();
     this.container.sortableChildren = true;
     this.drawBackground(context, boardSize);
+    this.drawHUD(context);
 
     this.snake = new Snake(boardSize);
 
     this.snake.on("moved", () => this.drawSnake(context));
     this.snake.on("foodplaced", position => this.drawApple(context, position));
     this.snake.on("gameover", () => console.log("Game over!"));
+    this.snake.on("scoreupdated", score => {
+      if (this.scoreText)
+        this.scoreText.text = score.toString();
+    });
 
     this.snake.start();
   }
@@ -136,6 +142,29 @@ export class GameScene extends PixiScene {
     this.container.addChild(animatedRunner.anim);
 
     this.appleSprite = animatedRunner;
+  }
+
+  drawHUD(context: Context) {
+
+    const scorePosition = this.boardTopLeftPosition.getCopy().addXY(0, -32);
+
+    const appleTexture = context.pixiAssetLoader.getResource("apple");
+    const sprite = new PIXI.Sprite(appleTexture.texture);
+    sprite.position.set(scorePosition.x, scorePosition.y);
+    sprite.anchor.set(0, .5);
+    sprite.width = sprite.height = TILE_SIZE;
+    this.container.addChild(sprite);
+
+    let style = new PIXI.TextStyle({
+      fontFamily: "arial",
+      fontSize: context.appSize.x * (24 / 545),
+      fill: "#000000"
+    });
+
+    this.scoreText = new PIXI.Text("0", style);
+    this.scoreText.anchor.set(0, 0.4);
+    this.scoreText.position.set(scorePosition.x + 38, scorePosition.y);
+    this.container.addChild(this.scoreText);
   }
 
   boardToCanvasPosition(boardPosition: Vector2): Vector2 {

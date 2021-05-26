@@ -14,7 +14,7 @@ export class Snake extends EventEmitter {
 
   gameFinsihed: boolean = false;
 
-  updateInterval: any
+  updateInterval: any;
 
   constructor(boardSize: Vector2) {
     super();
@@ -37,6 +37,10 @@ export class Snake extends EventEmitter {
 
   public get length(): number {
     return this.tailPositions.length;
+  }
+
+  public get score(): number {
+    return this.length - 2;
   }
 
   public get currentDirection(): Vector2 {
@@ -92,8 +96,10 @@ export class Snake extends EventEmitter {
       return;
     }
 
+    let foodEaten = false;
     if (newHeadPosition.equals(this.foodPosition)) {
       // food was eaten
+      foodEaten = true;
       this.placeFood();
     }
     // else remove oldest tailPosition:
@@ -102,6 +108,8 @@ export class Snake extends EventEmitter {
     this.tailPositions.push(newHeadPosition);
     this.lastMoveDirection = this.direction;
     this.emit("moved");
+    if (foodEaten)
+      this.emit("scoreupdated", this.score);
   }
 
   placeFood() {
