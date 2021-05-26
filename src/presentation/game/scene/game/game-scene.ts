@@ -13,8 +13,8 @@ export class GameScene extends PixiScene {
 
   snake: Snake
   snakeSprites: PIXI.Sprite[] = []
-  appleSprite: PixiAnimatedSprite? = null
-  scoreText: PIXI.Text? = null
+  appleSprite?: PixiAnimatedSprite
+  scoreText?: PIXI.Text
 
   readonly context: Context
   readonly boardTopLeftPosition: Vector2
@@ -36,11 +36,11 @@ export class GameScene extends PixiScene {
 
     this.snake.on("moved", () => this.drawSnake());
     this.snake.on("foodplaced", position => this.drawApple(position));
-    this.snake.on("gameover", () => {
-      console.log("Game over!")
+    this.snake.on("gameover", score => {
       context.audioManager.playSound("gameOver");
-      this.stopMusic();
+      this.goToGameFinishedScene();
     });
+    this.snake.on("won", score => this.goToGameFinishedScene());
     this.snake.on("scoreupdated", score => {
       if (this.scoreText)
         this.scoreText.text = score.toString();
@@ -193,6 +193,14 @@ export class GameScene extends PixiScene {
 
   stopMusic() {
     this.context.audioManager.stopSound("music");
+  }
+
+  goToGameFinishedScene() {
+    this.stopMusic();
+    this.context.lastSnakeGame = this.snake;
+    setTimeout(() => {
+      this.manager.goTo(3);
+    }, 1000);
   }
 
   /**

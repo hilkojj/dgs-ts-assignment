@@ -14,6 +14,7 @@ export class Snake extends EventEmitter {
   queuedDirections: Vector2[] = [];
 
   gameFinsihed: boolean = false;
+  _won: boolean = false;
 
   updateInterval: any;
 
@@ -42,6 +43,10 @@ export class Snake extends EventEmitter {
 
   public get score(): number {
     return this.length - 2;
+  }
+
+  public get won(): boolean {
+    return this._won;
   }
 
   public get currentDirection(): Vector2 {
@@ -95,15 +100,20 @@ export class Snake extends EventEmitter {
       // game over!
       this.gameFinsihed = true;
       this.end();
-      this.emit("gameover");
+      this.emit("gameover", this.score);
       return;
     }
 
     let foodEaten = false;
-    if (newHeadPosition.equals(this.foodPosition)) {
+    if (newHeadPosition.equalsWithMargin(this.foodPosition, .1)) {
       // food was eaten
       foodEaten = true;
-      this.placeFood();
+      if (!this.placeFood()) {
+        this._won = true;
+        this.gameFinsihed = true;
+        this.end();
+        this.emit("win", this.score);
+      }
     }
     // else remove oldest tailPosition:
     else this.tailPositions.shift();
@@ -115,21 +125,18 @@ export class Snake extends EventEmitter {
       this.emit("scoreupdated", this.score);
   }
 
-  placeFood() {
+  placeFood(): boolean {
 
     const openTiles = this.getOpenTiles();
 
     // check if there's room for an apple:
-    if (openTiles.length == 0) {
-
-      // TODO: winning condition reached?
-
-      return;
-    }
+    if (openTiles.length == 0)
+      return false;
 
     this.foodPosition = openTiles[Math.floor(Math.random() * openTiles.length)];
 
     this.emit("foodplaced", this.foodPosition);
+    return true;
   }
 
   setDirection(dir: Vector2) {
@@ -155,7 +162,7 @@ export class Snake extends EventEmitter {
   }
 
   isTail(position: Vector2): boolean {
-    return this.tailPositions.some(tailPos => tailPos.equals(position));
+    return this.tailPositions.some(tailPos => tailPos.equalsWithMargin(position, .1));
   }
 
   getOpenTiles(): Vector2[] {

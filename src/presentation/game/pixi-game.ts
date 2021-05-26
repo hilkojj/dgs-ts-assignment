@@ -6,6 +6,7 @@ import { PixiSceneManager } from "./scene/pixi-scene-manager";
 import { AuthScene } from "./scene/auth/auth-scene";
 import { SplashScene } from "./scene/splash/splash-scene";
 import { Color } from "../../logic/rendering/color";
+import { GameFinishedScene } from "./scene/game/game-finished-scene";
 
 export class PixiGame {
   private sceneManager: PixiSceneManager;
@@ -30,6 +31,7 @@ export class PixiGame {
         (manager: PixiSceneManager) => new SplashScene(context, manager),
         (manager: PixiSceneManager) => new AuthScene(context, manager),
         (manager: PixiSceneManager) => new GameScene(context, manager),
+        (manager: PixiSceneManager) => new GameFinishedScene(context, manager),
         (manager: PixiSceneManager) => new LeaderboardScene(context, manager),
       ],
       3

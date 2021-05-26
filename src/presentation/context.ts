@@ -6,6 +6,7 @@ import { AudioManager } from "./game/audio/audio-manager";
 import { AssetRepository } from "../data/loading/asset-repository";
 import { LoaderResource } from "pixi.js";
 import { Howl } from "howler";
+import { Snake } from "../logic/snake/snake";
 
 export class Context {
   appSize: Vector2;
@@ -15,6 +16,7 @@ export class Context {
   pixiAssetLoader: AssetRepository<LoaderResource>;
   howlerAssetLoader: AssetRepository<Howl>;
   audioManager: AudioManager;
+  lastSnakeGame?: Snake;
 
   constructor(
     appSize: Vector2,
