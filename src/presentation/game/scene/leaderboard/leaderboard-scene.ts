@@ -31,6 +31,13 @@ export class LeaderboardScene extends PixiScene {
     <div class="login-box">
       <h2>Leaderboard</h2>
 
+      <select id="leaderboard-period">
+        <option value="alltime">  All time      </option>
+        <option value="day">      Today         </option>
+        <option value="month">    Past month    </option>
+        <option value="year">     Past year     </option>
+      </select>
+
       <div class="leaderboard-list">
         <table></table>
       </div>
@@ -49,32 +56,41 @@ export class LeaderboardScene extends PixiScene {
 
     const listElement = this.div.querySelector(".leaderboard-list");
     const tableElement = this.div.querySelector(".leaderboard-list table");
-    if (!listElement || !tableElement)
+    const periodDropDown = this.div.querySelector("#leaderboard-period");
+    if (!listElement || !tableElement || !periodDropDown)
       throw Error("missing leaderboard elements");
 
     const LOAD_STEP = 16;
     let loadNrOfEntries = LOAD_STEP;
+    let period = "alltime";
 
     listElement.addEventListener("scroll", async _ => {
 
-      if (listElement.scrollTop >= (listElement.scrollHeight - listElement.clientHeight - 10)) {
+      if (listElement.scrollTop >= (listElement.scrollHeight - listElement.clientHeight - 32)) {
         
         if (loadNrOfEntries > (this.loadedEntries?.length || 0))
           return;
 
         loadNrOfEntries += LOAD_STEP;
-        this.showList(context, loadNrOfEntries, tableElement);
+        this.showList(context, loadNrOfEntries, period, tableElement);
       }
     });
 
-    this.showList(context, loadNrOfEntries, tableElement);
+    periodDropDown.addEventListener("change", async _ => {
+      period = (periodDropDown as HTMLSelectElement).value;
+      loadNrOfEntries = LOAD_STEP;
+      listElement.scrollTop = 0;
+      this.showList(context, loadNrOfEntries, period, tableElement);
+    });
+
+    this.showList(context, loadNrOfEntries, period, tableElement);
   }
 
-  async showList(context: Context, loadNrOfEntries: number, tableElement: Element) {
+  async showList(context: Context, loadNrOfEntries: number, period: string, tableElement: Element) {
 
     this.querySubscription?.unsubscribe();
 
-    const obs = await context.leaderboardRepo.listLeaderboard(null, loadNrOfEntries, "score", "desc");
+    const obs = await context.leaderboardRepo.listLeaderboard(loadNrOfEntries, "score", "desc", period as any);
 
     this.querySubscription = obs.subscribe(list => {
 
@@ -97,7 +113,9 @@ export class LeaderboardScene extends PixiScene {
             <td>${++i}</td>
             <td>${entry.name}</td>
             <td>${entry.score}</td>
-            <td>${new Date(entry.time).toISOString().substr(11, 8)}</td>  // HH-MM-SS https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
+            <td>${
+              new Date(entry.time).toISOString().substr(11, 8)  // HH-MM-SS https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
+            }</td>
           </tr>
         `;
       });

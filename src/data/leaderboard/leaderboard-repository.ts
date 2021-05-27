@@ -10,12 +10,12 @@ export class LeaderboardRepository {
   }
 
   listLeaderboard(
-    startAt: any | null,
     limit: number,
     orderBy: "score" | "time" | "date",
-    order: "asc" | "desc"
+    order: "asc" | "desc",
+    period: "day" | "month" | "year" | "alltime" = "alltime"
   ): Promise<Observable<Array<LeaderboardEntry>>> {
-    return this.provider.listLeaderboard(startAt, limit, orderBy, order);
+    return this.provider.listLeaderboard(limit, orderBy, order, period);
   }
 
   createEntry(entry: LeaderboardEntry): Promise<void>{

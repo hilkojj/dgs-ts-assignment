@@ -14,10 +14,10 @@ export class FirestoreLeaderboardProvider implements LeaderboardProvider {
   }
 
   async listLeaderboard(
-    startAt: any | null,
     limit: number,
     orderBy: "score" | "time" | "date",
-    order: "asc" | "desc"
+    order: "asc" | "desc",
+    period: "day" | "month" | "year" | "alltime"
   ): Promise<Observable<Array<LeaderboardEntry>>> {
 
     return new Observable<Array<LeaderboardEntry>>(observer => {
@@ -26,8 +26,17 @@ export class FirestoreLeaderboardProvider implements LeaderboardProvider {
         .orderBy(orderBy, order)
         .limit(limit);
 
-      if (startAt)
-        query = query.startAt(startAt);
+      if (period != "alltime") {
+        const date = new Date();
+        switch (period) {
+          case "day":
+            query = query.where("utcDay", "==", date.getUTCDate());
+          case "month":
+            query = query.where("utcMonth", "==", date.getUTCMonth());
+          case "year":
+            query = query.where("utcYear", "==", date.getUTCFullYear());
+        }
+      }
 
       query.onSnapshot(snap => {
 
@@ -42,7 +51,7 @@ export class FirestoreLeaderboardProvider implements LeaderboardProvider {
 
             time: Math.max(0, docSnap.data()["time"]),
 
-            date: new Date(docSnap.data()["date"].timestamp),
+            date: new Date(docSnap.data()["date"].seconds * 1000),
 
             score: Math.max(0, docSnap.data()["score"])
           }})
@@ -52,6 +61,11 @@ export class FirestoreLeaderboardProvider implements LeaderboardProvider {
   }
 
   async createEntry(entry: LeaderboardEntry): Promise<void> {
-    await this.collectionReference.add(entry);
+    await this.collectionReference.add({
+      ...entry,
+      utcDay: entry.date.getUTCDate(),
+      utcMonth: entry.date.getUTCMonth(),
+      utcYear: entry.date.getUTCFullYear()
+    });
   }
 }
