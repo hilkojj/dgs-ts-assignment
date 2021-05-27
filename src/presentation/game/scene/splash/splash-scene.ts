@@ -2,7 +2,6 @@ import { Context } from "../../../context";
 import { PixiScene } from "../pixi-scene";
 import { PixiSceneManager } from "../pixi-scene-manager";
 import * as PIXI from "pixi.js";
-import { Color } from "../../../../logic/rendering/color";
 import { User } from "../../../../data/auth/user";
 
 export class SplashScene extends PixiScene {

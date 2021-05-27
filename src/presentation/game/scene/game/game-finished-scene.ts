@@ -46,7 +46,7 @@ export class GameFinishedScene extends PixiScene {
 
     {
       const text = new PIXI.Text(
-        this.context.lastSnakeGame?._won ? "You won the game!" : "Game over!",
+        this.context.lastSnakeGame?.won ? "You won the game!" : "Game over!",
         {fontSize: 42, fill: Color.white().hexCode}
       );
       text.anchor.set(0.5, 0.5);

@@ -1,6 +1,14 @@
 import { Vector2 } from "../math/vector2";
 import { EventEmitter } from 'events';
 
+/**
+ * This is the class with all Game logic.
+ * 
+ * It is not responsible for graphics or sound effects nor uploading to the leaderboard,
+ * that happens in game-scene.ts
+ * 
+ * Simply call .start() to start the game, and call .goLeft(), goUp(), etc. to move.
+ */
 export class Snake extends EventEmitter {
 
   private boardSize: Vector2;
@@ -39,12 +47,18 @@ export class Snake extends EventEmitter {
     return this.tailPositions[this.tailPositions.length - 1].getCopy();
   }
 
+  /**
+   * The length of the snake
+   */
   public get length(): number {
     return this.tailPositions.length;
   }
 
+  /**
+   * Your score (number of apples eaten)
+   */
   public get score(): number {
-    return this.length - 2;
+    return this.length - 2; // the game starts with 2 "snake blocks", you don't get a score points for those.
   }
 
   public get won(): boolean {

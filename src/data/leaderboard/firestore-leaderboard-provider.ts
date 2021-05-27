@@ -38,6 +38,7 @@ export class FirestoreLeaderboardProvider implements LeaderboardProvider {
         }
       }
 
+      // mapping the firestore documents to actual LeaderboardEntry objects:
       query.onSnapshot(snap => {
 
         observer.next(
